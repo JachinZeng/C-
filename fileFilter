@@ -1,0 +1,118 @@
+#include<iostream>
+#include<string>
+#include<vector>
+#include<string>
+#include<sstream>
+#include<algorithm>
+#include<regex>
+#include<fstream>
+
+
+using namespace std;
+
+void matchContent(const string & str, vector<string>&filterContent, int&flag)
+{
+	regex titleMatch("^([A-Z])(.*)");
+	regex contentMatch("(.*?)=((\\d+.)?\\d+(\\s)?)?$");
+	smatch sm;
+	//匹配类别标题
+	if (regex_match(str, sm, titleMatch))
+	{
+		if (sm[1] == "A")
+		{
+			flag = 1;//A＃组织器官
+			filterContent.push_back(str);
+			//regexStr = "(.*?)=((\\d+.)?\\d+\\s)?$";
+		}
+		if (sm[1] == "B")
+		{
+			flag = 2;//B＃生化动态平衡
+			filterContent.push_back(str);
+			//regexStr = "(.*?)=((\\d+.)?\\d+)?$";
+		}
+		if (sm[1] == "C")
+		{
+			flag = 3;//C＃病理形态分析
+			filterContent.push_back(str);
+			//regexStr = "(.*?)=((\\d+.)?\\d+.*?)?$";
+		}
+		if (sm[1] == "E")
+		{
+			flag = 4;//E＃微生物和蠕虫
+			filterContent.push_back(str);
+			//regexStr = "(.*?)=((\\d+.)?\\d+.*?)?$";		
+		}
+
+	}
+	//匹配各类别内容并筛选过滤
+	else if (regex_match(str, sm, contentMatch))
+	{
+		string valStr = sm[2];
+		double value = atof(valStr.c_str());
+		if (flag == 1)
+		{
+			if (value >= 1)
+				filterContent.push_back(str);
+		}
+		if (flag == 2)
+		{
+			if (value == 1 || value == 7)
+				filterContent.push_back(str);
+		}
+		if (flag == 3)
+		{
+			if (value <= 2)
+				filterContent.push_back(str);
+		}
+		if (flag == 4)
+		{
+			if (value <= 0.75)
+				filterContent.push_back(str);
+		}
+	}
+}
+
+int main(int argc, char*argv[])
+{
+	string filePath = "C:\\Users\\MISASS\\Desktop\\2019-1-29-16-42_report.txt";
+	ifstream file;
+	file.open(filePath, ios::in);
+	if (!file.is_open())
+	{
+		cout << "文件打开失败，请检查文件路径" << endl;
+		system("pause");
+		return 0;
+	}
+	string str;//临时存储数据字符串
+	vector<string>filterContent;//存储过滤后的数据
+	static int flag;//标志位
+	//static string regexStr = "(.*?)=((\\d+.)?\\d+.*?)?$";//匹配规则
+
+	//读取文件内容
+	while (!file.eof())
+	{
+		getline(file, str);
+		//匹配并过滤数据
+		matchContent(str, filterContent, flag);
+	}
+
+	file.close();//关闭文件
+
+	//数据输出
+	string outPath= "C:\\Users\\MISASS\\Desktop\\2019-1-29-16-42_filter_report.txt";
+	ofstream outFile(outPath, ios::out);
+	if (outFile.is_open())
+	{
+		for (auto it = filterContent.begin(); it != filterContent.end(); ++it)
+		{
+			outFile << *it << endl;
+		}
+		outFile.close();
+	}
+	for (auto it = filterContent.begin(); it != filterContent.end(); ++it)
+	{
+		cout << *it << endl;
+	}
+	system("pause");
+	return 0;
+}
