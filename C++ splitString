@@ -1,0 +1,40 @@
+void splitString(const string & sepString, vector<string>&receiveStr, const string & seperator)
+{
+	string sepStr = sepString;
+	string sep = seperator;
+	string compareStr;//比较字符串；
+	string partStr;//存储分隔部分字符串；
+	
+	if (sepString == "")
+		return;
+	for (int i = 0; i <= sepStr.size(); ++i)
+	{
+		if (sepStr[i] == sep[0])//查找字符串与分隔符串第一个相同的字符；
+		{
+			compareStr = sepStr.substr(i, sep.size());
+			if (i == 0 && compareStr == sep)//分割符是字符串第一个字母；
+			{
+				i += sep.size();
+			}
+			else if (compareStr == sep)
+			{
+				receiveStr.push_back(partStr);
+				i += sep.size();
+				partStr = "";
+			}
+		}
+		partStr += sepStr[i];
+		if (sepStr[i] == '\0'&&sepStr.substr(i - sep.size(), i - 1) != sep)//查找到字符串结尾，把最后的字符串值push给collection
+			receiveStr.push_back(partStr);
+	}
+}
+
+
+int main(int argc,char*argv[])
+{
+    vector<string> receiveStr;
+    splitString("abcd##kkkk##djcun",receiveStr,"##");
+    
+    system("pause");
+    return 0;
+}
